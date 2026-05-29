@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# requirements.txt — IPEDG Python dependencies
+# Install: pip install -r requirements.txt
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Flask core ────────────────────────────────────────────────────────────────
+Flask>=3.0.3
+Flask-SQLAlchemy>=3.1.1
+Flask-Login>=0.6.3
+Flask-WTF>=1.2.1
+Flask-Bcrypt>=1.0.1
+Flask-APScheduler>=1.13.1
+Werkzeug>=3.0.3
+SQLAlchemy>=2.0.30
+WTForms>=3.1.2
+email-validator>=2.1.1
+
+# ── Security additions ────────────────────────────────────────────────────────
+# Rate limiting (Reference [38]: OWASP Secure Coding Practices)
+Flask-Limiter>=3.5.0
+
+# In-memory caching for ML inference results + API responses
+# Falls back to SimpleCache if Redis is not available
+Flask-Caching>=2.3.0
+
+# ── ML & Data Science ────────────────────────────────────────────────────────
+# Reference [15] TF-IDF, [19] Logistic Regression, [18] Naive Bayes,
+# [20] Cross-validation, [21] Evaluation metrics, [23] CalibratedClassifierCV
+scikit-learn>=1.5.0
+numpy>=2.0.0
+pandas>=2.2.2
+joblib>=1.4.2
+
+# ── NLP preprocessing (Reference [16]: NLTK text preprocessing) ──────────────
+nltk>=3.8.1
+
+# ── Network / Threat Intelligence ─────────────────────────────────────────────
+# Reference [25] VirusTotal, [26] Google Safe Browsing, [30] SPF/DKIM/DMARC
+requests>=2.31.0
+python-whois>=0.9.4
+dnspython>=2.6.1
+beautifulsoup4>=4.12.3
+lxml>=5.2.1
+python-dotenv>=1.0.1
+tldextract>=5.1.2
+urllib3>=2.2.1
+chardet>=5.2.0
+
+# ── APScheduler (Reference [29]) ─────────────────────────────────────────────
+APScheduler>=3.10.4
+
+# ── Utilities ────────────────────────────────────────────────────────────────
+itsdangerous>=2.2.0
+MarkupSafe>=2.1.5
+Jinja2>=3.1.4
+
+# ── Production WSGI server (Reference [43]: Gunicorn deployment) ─────────────
+gunicorn>=21.2.0
+
+# ── Redis client (for Flask-Limiter + Flask-Caching in production) ───────────
+redis>=5.0.0
+
+# ── Optional (install separately if needed) ──────────────────────────────────
+# scapy>=2.5.0        # pip install scapy         (packet crafting)
+# pyshark>=0.6.0      # pip install pyshark        (requires Wireshark)
+# python-nmap>=0.7.1  # pip install python-nmap    (requires nmap binary)

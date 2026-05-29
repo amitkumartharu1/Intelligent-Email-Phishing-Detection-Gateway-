@@ -1,0 +1,107 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# docker-compose.yml — IPEDG Full Stack (Development + Production)
+#
+# Services:
+#   web      — Flask + Gunicorn app
+#   nginx    — Reverse proxy (port 80 / 443)
+#   mailhog  — Local SMTP + web UI for email testing
+#   redis    — Caching layer for ML inference + API responses
+#
+# Usage:
+#   Development:  docker-compose up
+#   Production:   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ─────────────────────────────────────────────────────────────────────────────
+version: "3.9"
+
+services:
+
+  # ── Flask Application ──────────────────────────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: ipedg_web
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Override DB to use volume-mounted SQLite (or set DATABASE_URL for Postgres)
+      DATABASE_URL: "sqlite:////app/instance/phishing_email_detection.db"
+      MAILHOG_SMTP_HOST: mailhog
+      MAILHOG_API_HOST:  mailhog
+      FLASK_ENV: production
+      # Redis cache URL (used by Flask-Caching)
+      CACHE_REDIS_URL: "redis://redis:6379/0"
+      GUNICORN_WORKERS: "4"
+    volumes:
+      - app_instance:/app/instance
+      - app_logs:/app/logs
+      - app_uploads:/app/uploads
+      - app_models:/app/data/models
+    ports:
+      - "5000:5000"    # Direct access (bypass nginx in dev)
+    depends_on:
+      - mailhog
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - ipedg_net
+
+  # ── Nginx Reverse Proxy ───────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: ipedg_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro          # Mount TLS certs in production
+      - app_logs:/var/log/nginx
+    depends_on:
+      - web
+    networks:
+      - ipedg_net
+
+  # ── MailHog (local SMTP + API) ────────────────────────────────────────────
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: ipedg_mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI → http://localhost:8025
+    networks:
+      - ipedg_net
+
+  # ── Redis (caching + rate-limit store) ───────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: ipedg_redis
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "256mb",
+              "--maxmemory-policy", "allkeys-lru",
+              "--save", ""]          # disable persistence for pure cache
+    ports:
+      - "6379:6379"
+    networks:
+      - ipedg_net
+
+# ── Named volumes ─────────────────────────────────────────────────────────────
+volumes:
+  app_instance:
+  app_logs:
+  app_uploads:
+  app_models:
+
+# ── Networks ──────────────────────────────────────────────────────────────────
+networks:
+  ipedg_net:
+    driver: bridge
