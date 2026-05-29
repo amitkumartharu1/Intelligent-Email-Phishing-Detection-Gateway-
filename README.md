@@ -121,32 +121,7 @@ MailHog listens on:
 - **SMTP**: `localhost:1025`
 - **Web UI / API**: `http://localhost:8025`
 
-### 3. Clone & Set Up
 
-```bash
-git clone <repo-url> phishing-email-detection-system
-cd phishing-email-detection-system
-
-# Create and activate virtual environment
-python -m venv venv
-
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### 4. Configure Environment
-
-The `.env` file is pre-filled for development. Review and adjust if needed:
-
-```bash
-# Optionally add your VirusTotal API key (free at virustotal.com):
-VIRUSTOTAL_API_KEY=your_key_here
-```
 
 ### 5. Run the Application
 
@@ -346,19 +321,6 @@ All write endpoints require `X-CSRFToken` header.
 | SQLite locked error | Ensure only one process runs at a time in development |
 
 ---
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Backend | Python 3.10+, Flask 3.0, Flask-SQLAlchemy, Flask-Login, Flask-Bcrypt |
-| Database | SQLite (via SQLAlchemy ORM) |
-| Mail Transport | MailHog (SMTP 1025, API 8025) |
-| ML / Data | scikit-learn, pandas, NumPy, joblib |
-| Security Scanning | python-whois, dnspython, tldextract, VirusTotal API v3 |
-| Network | Nmap (python-nmap), PyShark, Scapy |
-| Frontend | HTML5, CSS3 (custom Gmail-like), Vanilla JS |
-| Scheduling | Flask-APScheduler (APScheduler 3.x) |
 
 ---
 
